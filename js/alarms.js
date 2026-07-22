@@ -6,11 +6,16 @@
    ============================================================ */
 
 // Tareas recordatorio adicionales (no son el checklist de mise en place)
+// Alcance por tarea:
+//  - Limpieza de área: TODAS las estaciones (11 am y 5 pm)
+//  - Lavado de trapos: TODAS las estaciones
+//  - Comida del personal: SOLO Armado / Cantador (11 am y 5 pm)
+//  - Burlete del Rational: SOLO Parrilla
 const REMINDER_TASKS = [
   { id: "area_clean", label: "Limpieza general del área", emoji: "🧹", times: SCHEDULE.areaCleanTimes, onlyStation: null },
-  { id: "staff_meal", label: "Servir la comida del personal", emoji: "🍽️", times: SCHEDULE.staffMealTimes, onlyStation: null },
-  { id: "burlete", label: "Limpieza del burlete del Rational", emoji: "🧽", times: [SCHEDULE.burleteTime], onlyStation: null },
-  { id: "towel_wash", label: "Lavado de trapos de cocina", emoji: "🧺", times: [SCHEDULE.towelWashTime], onlyStation: "parrilla" },
+  { id: "towel_wash", label: "Lavado de trapos de cocina", emoji: "🧺", times: [SCHEDULE.towelWashTime], onlyStation: null },
+  { id: "staff_meal", label: "Servir la comida del personal", emoji: "🍽️", times: SCHEDULE.staffMealTimes, onlyStation: "armado" },
+  { id: "burlete", label: "Limpieza del burlete del Rational", emoji: "🧽", times: [SCHEDULE.burleteTime], onlyStation: "parrilla" },
 ];
 
 // Envoltorio seguro de localStorage: si el navegador lo bloquea (ej. al
@@ -72,26 +77,46 @@ function beep(times = 2) {
 let __sirenCtx = null;
 let __sirenTimer = null;
 
-// Un "golpe" de sirena: dos tonos alternados tipo alarma de camión, a
-// volumen alto (0.6) — mucho más difícil de ignorar que un beep normal.
+// Golpe de sirena tipo alarma real: barrido de frecuencia (sube y baja)
+// con onda "sawtooth" (más áspera que una onda senoidal/cuadrada normal)
+// y volumen casi al máximo — pensado para que sea imposible de ignorar.
 function _sirenHit() {
   try {
     if (!__sirenCtx) __sirenCtx = new (window.AudioContext || window.webkitAudioContext)();
     const ctx = __sirenCtx;
     if (ctx.state === "suspended") ctx.resume();
     const t0 = ctx.currentTime;
-    [0, 0.28].forEach((offset, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "square";
-      osc.frequency.setValueAtTime(i === 0 ? 980 : 700, t0 + offset);
-      gain.gain.setValueAtTime(0.0001, t0 + offset);
-      gain.gain.exponentialRampToValueAtTime(0.55, t0 + offset + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + offset + 0.26);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(t0 + offset);
-      osc.stop(t0 + offset + 0.27);
-    });
+    const dur = 1.05;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(650, t0);
+    osc.frequency.linearRampToValueAtTime(1600, t0 + dur / 2);
+    osc.frequency.linearRampToValueAtTime(650, t0 + dur);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(0.9, t0 + 0.04);
+    gain.gain.setValueAtTime(0.9, t0 + dur - 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+
+    // Segunda voz un poco más aguda y desfasada: da textura de sirena real
+    // (dos tonos batiendo entre sí) en vez de un tono plano.
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "square";
+    osc2.frequency.setValueAtTime(900, t0);
+    osc2.frequency.linearRampToValueAtTime(1900, t0 + dur / 2);
+    osc2.frequency.linearRampToValueAtTime(900, t0 + dur);
+    gain2.gain.setValueAtTime(0.0001, t0);
+    gain2.gain.exponentialRampToValueAtTime(0.45, t0 + 0.04);
+    gain2.gain.setValueAtTime(0.45, t0 + dur - 0.08);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc2.connect(gain2).connect(ctx.destination);
+    osc2.start(t0);
+    osc2.stop(t0 + dur + 0.02);
   } catch (e) {
     console.warn("No se pudo reproducir la sirena:", e);
   }
@@ -100,7 +125,9 @@ function _sirenHit() {
 function sirenStart() {
   sirenStop();
   _sirenHit();
-  __sirenTimer = setInterval(_sirenHit, 1400);
+  // Casi continua: cada golpe dura ~1.05s y el siguiente arranca a 1.1s,
+  // así queda un sonido de sirena prácticamente ininterrumpido.
+  __sirenTimer = setInterval(_sirenHit, 1100);
 }
 
 function sirenStop() {

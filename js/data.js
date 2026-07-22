@@ -24,6 +24,10 @@ const SCHEDULE = {
   burleteTime: "15:00",
 };
 
+// Nombres del personal disponible para elegir como "Responsable de la
+// estación" en el checklist. Edita esta lista cuando cambie el equipo.
+const STAFF_NAMES = ["ISIDORO", "MIGUEL", "HERNANDO", "IVAN", "ADRIAN", "DAVID", "JUAN", "MAICOL", "MAIRA"];
+
 // Clave simple para entrar al dashboard gerencial (sin cuentas de Firebase).
 // CÁMBIALA por la que quieras usar en el restaurante — es lo único que
 // protege el panel, así que evita dejar la que viene por defecto.

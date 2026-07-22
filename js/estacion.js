@@ -16,6 +16,15 @@ if (!station) {
 document.title = `Córdova · ${station.name}`;
 document.getElementById("station-title").textContent = `${station.icon} ${station.name}`;
 
+// Llenar el selector de responsables con la lista fija de personal
+const respSelect = document.getElementById("f-responsable");
+STAFF_NAMES.forEach((name) => {
+  const opt = document.createElement("option");
+  opt.value = name;
+  opt.textContent = name;
+  respSelect.appendChild(opt);
+});
+
 // Reloj
 function renderClock() {
   const now = new Date();
