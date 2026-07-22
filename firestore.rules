@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // El dashboard usa una clave simple en el propio código (no cuentas
+    // de Firebase Authentication), así que estas reglas NO pueden exigir
+    // "request.auth" — se dejan abiertas a nivel de base de datos. La única
+    // protección real es que nadie pueda editar/borrar lo ya enviado, y que
+    // quien no conozca la URL/clave del dashboard no vea el enlace para
+    // consultar los datos. Si más adelante quieres bloquear también la
+    // LECTURA a nivel de base de datos, hay que volver a Firebase
+    // Authentication (correo/contraseña) en vez de la clave simple.
+    match /checklists/{docId} {
+      allow create: if true;
+      allow read: if true;
+      allow update, delete: if false;
+    }
+
+    match /tasks/{docId} {
+      allow create: if true;
+      allow read: if true;
+      allow update, delete: if false;
+    }
+  }
+}
