@@ -2,13 +2,14 @@
    CÓRDOVA RESTAURANTE — Dashboard gerencial
    ============================================================ */
 
+// onlyStation debe coincidir con lo definido en js/alarms.js (REMINDER_TASKS)
 const TASK_SLOTS = [
-  { taskId: "area_clean", time: "11:00", col: 0 },
-  { taskId: "staff_meal", time: "11:00", col: 1 },
-  { taskId: "area_clean", time: "17:00", col: 2 },
-  { taskId: "staff_meal", time: "17:00", col: 3 },
-  { taskId: "burlete", time: "15:00", col: 4 },
-  { taskId: "towel_wash", time: "15:00", col: 5, onlyStation: "parrilla" },
+  { taskId: "area_clean", time: "11:00", col: 0, onlyStation: null },
+  { taskId: "staff_meal", time: "11:00", col: 1, onlyStation: "armado" },
+  { taskId: "area_clean", time: "17:00", col: 2, onlyStation: null },
+  { taskId: "staff_meal", time: "17:00", col: 3, onlyStation: "armado" },
+  { taskId: "burlete", time: "15:00", col: 4, onlyStation: "parrilla" },
+  { taskId: "towel_wash", time: "15:00", col: 5, onlyStation: null },
 ];
 
 function todayKeyD() {
@@ -112,8 +113,17 @@ function startDashboard() {
     dateInput.value = currentDate;
     subscribe();
   });
+  // Renderiza el esqueleto (5 estaciones, KPIs en 0) de inmediato, sin
+  // esperar respuesta de Firestore — así el dashboard nunca se ve
+  // completamente vacío, incluso si la base de datos tarda o falla.
+  renderAll();
   subscribe();
   setInterval(renderAll, 20000); // refresca estados de "atrasado" aunque no cambien los datos
+}
+
+function showConnError(msg) {
+  const el = document.getElementById("overdue-banner-slot");
+  if (el) el.innerHTML = `<div class="sticky-alert">⚠️ ${msg} Revisa que hayas publicado las reglas de Firestore y que tu conexión a internet esté activa.</div>`;
 }
 
 function subscribe() {
@@ -124,13 +134,19 @@ function subscribe() {
     checklistDocs = [];
     snap.forEach((doc) => checklistDocs.push({ id: doc.id, ...doc.data() }));
     renderAll();
-  }, (err) => console.error("Error leyendo checklists:", err));
+  }, (err) => {
+    console.error("Error leyendo checklists:", err);
+    showConnError("No se pudieron cargar los checklists (" + err.code + ").");
+  });
 
   unsubTasks = db.collection("tasks").where("date", "==", currentDate).onSnapshot((snap) => {
     taskDocs = [];
     snap.forEach((doc) => taskDocs.push({ id: doc.id, ...doc.data() }));
     renderAll();
-  }, (err) => console.error("Error leyendo tasks:", err));
+  }, (err) => {
+    console.error("Error leyendo tasks:", err);
+    showConnError("No se pudieron cargar las tareas (" + err.code + ").");
+  });
 }
 
 function findChecklist(stationId, turno) {

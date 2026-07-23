@@ -6,7 +6,7 @@
 <title>Córdova · Dashboard Gerencial</title>
 <link rel="icon" href="assets/logo.png" />
 <link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#2c1c0d" />
+<meta name="theme-color" content="#faf7f1" />
 <link rel="apple-touch-icon" href="assets/icon-192.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,92 +15,123 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
 <body>
-  <div class="wrap">
-
-    <!-- LOGIN -->
-    <div id="login-view">
+  <!-- LOGIN -->
+  <div id="login-view">
+    <div class="wrap">
       <div class="login-box card card-accent fade-in">
         <div style="text-align:center; margin-bottom:14px;">
           <img src="assets/logo.png" width="76" style="border-radius:50%; box-shadow:var(--shadow);" />
           <h2 style="border:none; font-family:'Playfair Display', serif;">Acceso Gerencia</h2>
-          <p style="color:var(--brand-wood-dark); margin-top:-6px;">Córdova Restaurante · Panel de control</p>
+          <p style="color:var(--text-secondary); margin-top:-6px;">Córdova Restaurante · Panel de control</p>
         </div>
         <div class="field">
           <label>Clave de acceso</label>
           <input type="password" id="login-pass" placeholder="Escribe la clave" />
         </div>
         <button class="btn btn-primary btn-block" id="btn-login">Entrar</button>
-        <p id="login-msg" style="text-align:center; color:var(--brand-red);"></p>
+        <p id="login-msg" style="text-align:center; color:var(--red);"></p>
         <p class="footer-note"><a href="index.html">← Volver a estaciones</a></p>
       </div>
     </div>
-
-    <!-- DASHBOARD -->
-    <div id="dash-view" style="display:none;">
-      <div class="hero-header">
-        <div class="hero-glow"></div>
-        <img class="hero-logo" src="assets/logo.png" alt="Córdova Restaurante" />
-        <div class="hero-copy">
-          <span class="eyebrow">Panel gerencial</span>
-          <h1>Dashboard de Control</h1>
-          <p>Córdova Restaurante · Cumplimiento de estaciones</p>
-        </div>
-        <div class="clock">
-          <span class="conn-pill" id="conn-status">·</span>
-          <div class="time" id="clock-time">--:--</div>
-          <button class="btn btn-secondary" id="btn-logout" style="margin-top:8px;">Cerrar sesión</button>
-        </div>
-      </div>
-
-      <div id="overdue-banner-slot"></div>
-
-      <div class="card card-accent fade-in">
-        <div class="field-row">
-          <div class="field">
-            <label>Fecha a revisar</label>
-            <input type="date" id="f-date" />
-          </div>
-          <div class="field" style="display:flex; align-items:flex-end;">
-            <button class="btn btn-secondary" id="btn-today">Hoy</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="kpi-row fade-in">
-        <div class="kpi-grid" id="kpi-grid"></div>
-        <div class="chart-card">
-          <h2 style="margin-top:0;">Cumplimiento de hoy</h2>
-          <canvas id="compliance-chart" width="220" height="220"></canvas>
-          <div class="chart-legend" id="chart-legend"></div>
-        </div>
-      </div>
-
-      <div class="card fade-in">
-        <h2>Checklists de mise en place por estación</h2>
-        <table class="dash-table">
-          <thead>
-            <tr><th>Estación</th><th>Mediodía (11:30)</th><th>Noche (6:30 pm)</th></tr>
-          </thead>
-          <tbody id="checklist-table-body"></tbody>
-        </table>
-      </div>
-
-      <div class="card fade-in">
-        <h2>Tareas recordatorio (área, comida personal, burlete, trapos)</h2>
-        <table class="dash-table">
-          <thead>
-            <tr><th>Estación</th><th>Limpieza área 11 am</th><th>Comida personal 11 am</th><th>Limpieza área 5 pm</th><th>Comida personal 5 pm</th><th>Burlete Rational 3 pm</th><th>Trapos (Parrilla) 3 pm</th></tr>
-          </thead>
-          <tbody id="tasks-table-body"></tbody>
-        </table>
-      </div>
-
-      <div class="footer-note">Córdova Restaurante · Panel interno — mantén esta pestaña abierta para recibir alertas en vivo.</div>
-    </div>
-
-    <!-- MODAL DETALLE -->
-    <div id="modal-slot"></div>
   </div>
+
+  <!-- DASHBOARD -->
+  <div id="dash-view" style="display:none;">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <img src="assets/logo.png" alt="Córdova Restaurante" />
+          <div>
+            <span class="name">Córdova Restaurante</span>
+            <span class="sub">Centro de control · Cocina</span>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <a class="nav-item" href="index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+            Estaciones
+          </a>
+          <a class="nav-item active" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Checklists
+          </a>
+          <a class="nav-item" href="#tareas-card">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Historial
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <button class="btn btn-secondary btn-block" id="btn-logout">Cerrar sesión</button>
+        </div>
+      </aside>
+
+      <main class="main-area">
+        <div class="wrap">
+          <div class="hero-header">
+            <div class="hero-glow"></div>
+            <img class="hero-logo" src="assets/logo.png" alt="Córdova Restaurante" />
+            <div class="hero-copy">
+              <span class="eyebrow">Panel gerencial</span>
+              <h1>Dashboard de Control</h1>
+              <p>Córdova Restaurante · Cumplimiento de estaciones</p>
+            </div>
+            <div class="clock">
+              <span class="conn-pill" id="conn-status">·</span>
+              <div class="time" id="clock-time">--:--</div>
+            </div>
+          </div>
+
+          <div id="overdue-banner-slot"></div>
+
+          <div class="card card-accent fade-in">
+            <div class="field-row">
+              <div class="field">
+                <label>Fecha a revisar</label>
+                <input type="date" id="f-date" />
+              </div>
+              <div class="field" style="display:flex; align-items:flex-end;">
+                <button class="btn btn-secondary" id="btn-today">Hoy</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-row fade-in">
+            <div class="kpi-grid" id="kpi-grid"></div>
+            <div class="chart-card">
+              <h2 style="margin-top:0;">Cumplimiento de hoy</h2>
+              <canvas id="compliance-chart" width="220" height="220"></canvas>
+              <div class="chart-legend" id="chart-legend"></div>
+            </div>
+          </div>
+
+          <div class="card fade-in">
+            <h2>Checklists de mise en place por estación</h2>
+            <table class="dash-table">
+              <thead>
+                <tr><th>Estación</th><th>Mediodía (11:30)</th><th>Noche (6:30 pm)</th></tr>
+              </thead>
+              <tbody id="checklist-table-body"></tbody>
+            </table>
+          </div>
+
+          <div class="card fade-in" id="tareas-card">
+            <h2>Tareas recordatorio (área, comida personal, burlete, trapos)</h2>
+            <table class="dash-table">
+              <thead>
+                <tr><th>Estación</th><th>Limpieza área 11 am</th><th>Comida personal 11 am (Armado)</th><th>Limpieza área 5 pm</th><th>Comida personal 5 pm (Armado)</th><th>Burlete Rational 3 pm (Parrilla)</th><th>Lavado de trapos 3 pm</th></tr>
+              </thead>
+              <tbody id="tasks-table-body"></tbody>
+            </table>
+          </div>
+
+          <div class="footer-note">Córdova Restaurante · Panel interno — mantén esta pestaña abierta para recibir alertas en vivo.</div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL DETALLE -->
+  <div id="modal-slot"></div>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>

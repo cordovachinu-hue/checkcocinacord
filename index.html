@@ -6,7 +6,7 @@
 <title>Córdova · Control de Estaciones</title>
 <link rel="icon" href="assets/logo.png" />
 <link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#2c1c0d" />
+<meta name="theme-color" content="#faf7f1" />
 <link rel="apple-touch-icon" href="assets/icon-192.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -32,7 +32,7 @@
 
     <div class="card card-accent fade-in">
       <h2>Selecciona tu estación</h2>
-      <p style="color:var(--brand-wood-dark); margin-top:-6px;">
+      <p style="color:var(--text-secondary); margin-top:-6px;">
         Deja esta página abierta en el PC de tu estación durante todo el turno para que suenen los avisos.
       </p>
       <div class="station-grid" id="station-grid"></div>
@@ -60,6 +60,10 @@
     STATIONS.forEach((s) => {
       const a = document.createElement("a");
       a.className = "station-tile";
+      // data-station: solo se usa para aplicar el fondo temático de cada
+      // estación en css/style.css (.station-tile[data-station="..."]).
+      // No afecta ninguna lógica de JS.
+      a.setAttribute("data-station", s.id);
       a.href = `estacion.html?station=${s.id}`;
       a.innerHTML = `<span class="icon-badge"><span class="icon">${s.icon}</span></span><span class="name">${s.name}</span><span class="tile-arrow">Ingresar →</span>`;
       grid.appendChild(a);
